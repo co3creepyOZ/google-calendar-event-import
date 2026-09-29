@@ -1,0 +1,30 @@
+.grade-settings{margin:0 0 20px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:#f8fafc}
+.grade-colors{display:flex;flex-wrap:wrap;gap:12px;margin:14px 0 18px}
+.grade-picker{display:flex;align-items:center;gap:9px;background:white;border:1px solid var(--line);border-radius:24px;padding:6px 12px 6px 6px;margin:0;cursor:pointer}
+.grade-picker input[type=color]{appearance:none;-webkit-appearance:none;width:30px;height:30px;padding:0;border:0;background:none;cursor:pointer;border-radius:50%;overflow:hidden}
+.grade-picker input[type=color]::-webkit-color-swatch-wrapper{padding:0}
+.grade-picker input[type=color]::-webkit-color-swatch{border:1px solid #15294020;border-radius:50%}
+.grade-picker span{font-size:13px}
+#reset-colors{font-size:12px;padding:7px 12px}
+.grade-picker{display:block;position:relative;padding:0;border-radius:20px}
+.grade-picker>summary{display:flex;align-items:center;gap:9px;padding:7px 12px;list-style:none;font-size:13px}
+.grade-picker>summary::-webkit-details-marker{display:none}
+.grade-dot{display:inline-block;width:22px;height:22px;border-radius:50%;border:1px solid #15294020}
+.palette-chevron{margin-left:8px;color:var(--muted)}
+.grade-picker[open]{border-color:#789b90}
+.palette-panel{padding:14px;border-top:1px solid var(--line);width:292px;background:white;border-radius:0 0 20px 20px}
+.palette-panel p{font-size:12px;margin:0 0 12px;color:var(--muted)}
+.swatch-grid{display:grid;grid-template-columns:repeat(8,26px);gap:7px}
+button.color-swatch{width:26px;height:26px;padding:0;border:0;border-radius:50%;font-size:17px;line-height:26px;min-width:0}
+button.color-swatch:hover{outline:2px solid #8a9bad;outline-offset:2px}
+button.color-swatch[aria-pressed=true]{box-shadow:0 0 0 2px white,0 0 0 3px #52677a}
+.custom-color{display:flex;align-items:center;justify-content:space-between;margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line);font-size:13px;cursor:pointer}
+.google-help{background:#fff7e8;border:1px solid #d9b878;border-radius:12px;padding:14px 18px;margin:14px 0;color:var(--ink)}
+.google-help>summary{color:#624b22}
+.google-help ol,.google-help ul{padding-left:24px}
+.google-help li{margin:10px 0}
+.google-help p,.google-help li{font-size:14px;line-height:1.65}
+.google-help h3{font-size:15px;margin:20px 0 6px}
+.google-help code{overflow-wrap:anywhere}
+#script-url,#script-key{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:white;color:var(--ink)}
+#script-code{height:280px;margin-top:12px}

@@ -1,0 +1,50 @@
+# Installed dependencies (recreated with npm ci)
+node_modules/
+
+# Local profiles, saved schedules, settings and migration backups
+/local-storage/
+/history/
+/.storage-migration-*/
+/preview-history.json
+/preview-history.json.*.bak
+/window-state.json
+*.enc
+
+# Private credentials and machine-specific environment files
+.env
+.env.*
+!.env.example
+client_secret*.json
+credentials.json
+token.json
+tokens.json
+
+# Development-only checks, generated screenshots and old prototypes
+/tests/
+/archive/
+/desktop-*.png
+/coverage/
+/.nyc_output/
+
+# Build/package outputs and tool caches
+/dist/
+/out/
+/release/
+/releases/
+/.cache/
+/.npm/
+*.tsbuildinfo
+
+# Logs and temporary/editor/OS files
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Keep src/, apps-script/, docs/, the launcher, README and both package
+# manifests tracked: these are needed for a reproducible clean setup.

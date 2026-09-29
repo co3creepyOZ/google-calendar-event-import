@@ -1,0 +1,4 @@
+#reminder{font:inherit;color:var(--ink);background:white;border:1px solid #9fb5ae;border-radius:12px;padding:11px 14px;min-width:230px}
+#reminder:focus-visible{outline:3px solid #d88600;outline-offset:3px}
+label[for=reminder]{margin-top:20px}
+#reminder-summary{font-size:12px;color:var(--green)}
