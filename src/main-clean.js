@@ -21,7 +21,7 @@ require('./preview-store.cjs').register();
 function createWindow() {
   const {loadWindowState,rememberWindowState}=require('./window-state.cjs');
   const state=loadWindowState(app.getPath('userData'),require('electron').screen.getPrimaryDisplay().workAreaSize);
-  const win = new BrowserWindow({ width: state.width, height: state.height, show: false, webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false } });
+  const win = new BrowserWindow({ width: state.width, height: state.height, show: false, icon: path.join(__dirname, '..', 'assets', 'app-icon.png'), webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false } });
   rememberWindowState(win,app.getPath('userData'));
   win.once('ready-to-show',()=>{if(state.maximized)win.maximize();win.show();});
   win.removeMenu();

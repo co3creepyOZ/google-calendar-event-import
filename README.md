@@ -42,6 +42,25 @@ npm start
 Do not omit development dependencies: this source distribution uses Electron from `devDependencies`. This repository is a runnable source distribution, not a standalone Windows installer.
 
 ## First use
+### Create a desktop shortcut automatically
+
+From PowerShell in the project root, run:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\scripts\Create Desktop Shortcut.ps1"
+```
+
+This creates **Google Calendar Event Generator** on your Windows desktop with the bundled calendar icon. It points to `Start Calendar Generator.cmd`, so first-time dependency setup still works. The script uses the actual desktop location, including OneDrive desktops, and resolves app paths automatically. The execution-policy override applies only to this command; it does not change your system policy.
+
+Running the script again updates the shortcut if it already targets this app. It refuses to overwrite a same-named shortcut pointing to a different location. If you move the app folder, remove or rename the old shortcut and run the script from the new folder. Administrator access is not needed to create the shortcut.
+
+The ready-to-use icon is included at `assets/app-icon.ico`; no image tools or dependencies are needed for shortcut creation. Developers can regenerate it from `assets/app-icon.png` after installing dependencies:
+
+```powershell
+.\node_modules\electron\dist\electron.exe .\scripts\build-icon.cjs
+```
+
+### Load your timetable
 
 1. Open **Розклад** and select URL or Markdown input. Expand the help panel for capture instructions.
 2. Supply your school's URL and select a teacher/class, or paste Markdown/open a `.md` file. Keep date headings and empty-day tables intact.
@@ -78,6 +97,8 @@ Older AppData profiles and history files are migrated when applicable, with reco
 
 ```text
 src/                         Electron app, renderer, styles and services
+assets/                      App icon in PNG and Windows ICO formats
+scripts/                     Desktop shortcut creation and icon build scripts
 apps-script/                 Google Apps Script integration
 docs/                        Setup guides
 package.json                 App entry point and npm scripts

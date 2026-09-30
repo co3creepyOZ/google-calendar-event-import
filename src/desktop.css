@@ -1,4 +1,5 @@
 /* A compact desktop shell; existing component styles remain underneath. */
+.brand-icon{width:42px;height:42px;object-fit:contain;flex-shrink:0}
 body{background:#f5f7f9;font-size:14px}
 header{height:68px;padding:12px 28px;background:#fff;color:var(--ink);border-bottom:1px solid var(--line)}
 .brand strong{font-size:16px}.brand small{color:var(--muted);font-size:11px}.mark{font-size:25px;background:#d9eee6;padding:0 9px}.header-note{color:var(--muted);font-size:12px}
