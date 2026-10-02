@@ -22,7 +22,7 @@ function invalidateSource(){
   conflictChoicesOnce={};
   allowAmbiguousOnce=false;
   $('ambiguity-error').hidden=true;
-  $('save').disabled=true;invalidateIcs();$('script-push').disabled=true;
+  $('save').disabled=true;invalidateIcs();
   status('Джерело змінено. Створіть новий перегляд.');
 }
 function sourceVisibility(){

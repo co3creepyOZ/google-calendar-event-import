@@ -15,8 +15,9 @@
   <script src="day-bells.js" defer></script>
   <script src="timetable-format.js" defer></script>
   <script src="url-import.js" defer></script>
-  <script src="script-sync-ui.js" defer></script>
   <script src="desktop.js" defer></script>
+  <script src="room-model.js" defer></script>
+  <script src="rooms.js" defer></script>
   <script src="preview-history.js" defer></script>
 </head>
 <body>
@@ -91,60 +92,8 @@
         <div id="grade-colors" class="grade-colors"></div>
         <button id="reset-colors" type="button">Відновити стандартні кольори</button>
       </details>
-      <details class="grade-settings"><summary>Google Calendar Sync — без Desktop OAuth JSON</summary>
-        <p class="hint">Особисте підключення через Google Apps Script. Синхронізація запускається кнопкою: розклад у програмі → ваш календар Google.</p>
-        <details class="google-help"><summary>Як підключити Apps Script</summary>
-          <ol>
-            <li>Відкрийте <strong>script.google.com</strong> у браузері під потрібним Google-акаунтом і створіть новий проєкт.</li>
-            <li>Натисніть «Показати код» нижче. Скопіюйте весь код у файл <strong>Code.gs</strong> вашого проєкту та збережіть.</li>
-            <li>У редакторі Apps Script виберіть <strong>Services → + → Google Calendar API → Add</strong> (ідентифікатор Calendar). Якщо використовується власний Cloud-проєкт, увімкніть Calendar API також у ньому.</li>
-            <li>Запустіть функцію <strong>setup</strong> та надайте доступ до календаря. У журналі виконання з’явиться приватний <strong>connection key</strong>. Скопіюйте його. Ключ не передавайте іншим.</li>
-            <li>За замовчуванням використовується основний календар. Для іншого календаря в <strong>Project Settings → Script Properties</strong> змініть <strong>CALENDAR_ID</strong> на його ID із налаштувань Google Calendar та повторіть setup.</li>
-            <li><strong>Deploy → New deployment → Web app</strong>: Execute as — <strong>Me</strong>, Who has access — <strong>Anyone</strong>. Розгорніть і скопіюйте URL, який закінчується на <strong>/exec</strong>. Якщо організація забороняє Anyone, цей спосіб недоступний без дозволу адміністратора.</li>
-            <li>Вставте URL і ключ нижче, натисніть «Підключити». Перевірте назву календаря та часовий пояс. Згенеруйте уроки й натисніть «Синхронізувати уроки».</li>
-          </ol>
-          <p>Доступ до вебзастосунку публічний, але запити перевіряються приватним ключем, підписом і часом запиту. Ключ надає право створювати та оновлювати уроки в обраному календарі. Для іншого користувача потрібен окремий проєкт, розгортання й ключ.</p>
-          <p>Ідентичність уроку: дата + номер уроку + клас/група. Зміни часу, предмета, кабінету, кольору та сповіщень оновлюють подію. Зміна дати, номера або групи створює іншу подію; попередня не видаляється. Події з CSV/ICS або попереднього OAuth-експорту не пов’язуються автоматично. Правки в Google не завантажуються назад.</p>
-          <p>«Відключити» видаляє локальні збережені URL і ключ. Для відкликання доступу також архівуйте розгортання в Google або змініть SYNC_KEY. Після зміни коду створіть нову версію розгортання.</p>
-          <button id="script-source" type="button">Показати код</button>
-          <textarea id="script-code" readonly hidden aria-label="Код Google Apps Script" rows="12"></textarea>
-        </details>
-        <label for="script-url">URL вебзастосунку (/exec)</label><input id="script-url" type="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off">
-        <label for="script-key">Приватний ключ підключення</label><input id="script-key" type="password" autocomplete="off" placeholder="Ключ із журналу setup">
-        <div class="actions"><button id="script-connect">Підключити</button><button id="script-disconnect">Відключити</button><button id="script-push" class="primary" disabled>Синхронізувати уроки</button></div>
-        <p id="script-status" class="hint" role="status">Apps Script не підключено.</p>
-      </details>
-      <details class="grade-settings"><summary>Google Calendar — пряме створення подій (Desktop OAuth)</summary>
-        <p class="hint">Завантажте OAuth JSON типу Desktop app, увійдіть у Google та виберіть календар. Перше підключення? Розгорніть інструкцію нижче.</p>
-        <details class="google-help">
-          <summary>Як підключити Google Calendar — покрокова інструкція</summary>
-          <ol>
-            <li>Відкрийте <strong>Google Cloud Console</strong> у браузері (<code>console.cloud.google.com</code>). Створіть або виберіть проєкт і ввімкніть <strong>Google Calendar API</strong>.</li>
-            <li>Налаштуйте <strong>Google Auth Platform / OAuth consent</strong>. Якщо тип застосунку — External зі статусом Testing, додайте свою адресу Google до <strong>Test users</strong>.</li>
-            <li>Створіть клієнт OAuth типу <strong>Desktop app</strong> (не Web application). Завантажте його JSON-файл.</li>
-            <li>У цьому блоці натисніть <strong>«Завантажити OAuth JSON»</strong> та виберіть завантажений файл.</li>
-            <li>Натисніть <strong>«Увійти в Google»</strong>. Завершіть вхід і надайте доступ у браузері, потім поверніться до програми. Час очікування — 3 хвилини.</li>
-            <li>Згенеруйте й перевірте уроки. Виберіть календар призначення та натисніть <strong>«Створити події в Google Calendar»</strong>. У вікні підтвердження перевірте назву календаря, кількість подій і часовий пояс.</li>
-          </ol>
-          <h3>Кольори, час і сповіщення</h3>
-          <p>Колір кожного класу наближається до найближчого кольору палітри Google. Час уроків використовує часовий пояс вибраного календаря. Налаштування сповіщень замінюють стандартні нагадування календаря, включно з варіантом «Без сповіщення».</p>
-          <h3>Повторне створення</h3>
-          <p>Ідентичні події, створені цією програмою, пропускаються під час повторної спроби. Зміна назви, дати, часу, кабінету або календаря створює нову подію, а не оновлює стару. Події, раніше імпортовані через CSV або ICS, не розпізнаються — не імпортуйте той самий розклад двічі.</p>
-          <h3>Доступ до облікового запису</h3>
-          <p>Облікові дані та токени зберігаються локально із шифруванням Windows. Кнопка «Вийти» видаляє файл підключення Google, токени та OAuth client ID / secret з пам’яті програми. Для наступного входу завантажте OAuth JSON знову. Вихід не видаляє оригінальний завантажений JSON, події Google або налаштування уроків. Щоб також відкликати доступ у Google, видаліть застосунок у розділі сторонніх підключень свого облікового запису Google.</p>
-          <h3>Якщо не вдається підключитися</h3>
-          <ul>
-            <li>Перевірте, що Calendar API ввімкнено, а OAuth-клієнт має тип Desktop app.</li>
-            <li>Для статусу Testing перевірте свою адресу в Test users. Може знадобитися повторна згода через 7 днів.</li>
-            <li>Якщо минули 3 хвилини, натисніть «Увійти в Google» ще раз.</li>
-            <li>Для шкільного облікового запису політика організації може вимагати дозволу адміністратора.</li>
-          </ul>
-        </details>
-        <div class="actions"><button id="google-config">Завантажити OAuth JSON</button><button id="google-signin">Увійти в Google</button><button id="google-disconnect" disabled>Вийти</button></div>
-        <label for="google-calendar">Календар призначення</label><select id="google-calendar" disabled><option value="">Увійдіть, щоб вибрати календар</option></select>
-        <p class="hint">Час використовує часовий пояс вибраного календаря. Кольори наближаються до палітри Google; «Без сповіщення» вимикає нагадування. Повторне створення пропускає ідентичні події, але не оновлює їх.</p>
-        <button id="google-create" disabled>Створити події в Google Calendar</button><p id="google-status" role="status" class="hint">Google не підключено.</p>
-      </details>
+
+
       <div class="tabs" role="tablist" aria-label="Вигляд попереднього перегляду">
         <button id="tab-calendar" role="tab" aria-selected="true" aria-controls="panel-calendar">Календар</button>
         <button id="tab-list" role="tab" aria-selected="false" aria-controls="panel-list" tabindex="-1">Список подій</button>

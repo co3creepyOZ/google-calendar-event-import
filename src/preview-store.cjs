@@ -56,13 +56,28 @@ function createStore(folder){
       await initialized;
       await pending;
       const files=(await fs.readdir(directory)).filter(name=>/^preview-.+-[a-f0-9]{64}\.json$/.test(name));
-      if(!files.length)return null;
+      if(!files.length){
+        try{await fs.access(path.join(directory,'.history-initialized'));return [];}catch(e){if(e.code!=='ENOENT')throw e;}
+        return null;
+      }
       const entries=[];
       for(const name of files){
         const entry=JSON.parse(await fs.readFile(path.join(directory,name),'utf8'));
         validate([entry]);entries.push(entry);
       }
       return entries.sort((a,b)=>String(b.savedAt||'').localeCompare(String(a.savedAt||'')));
+    },
+    remove(entry){
+      validate([entry]);
+      const file=filename(entry);
+      const operation=pending.then(async()=>{
+        await initialized;
+        await fs.writeFile(path.join(directory,'.history-initialized'),'1','utf8');
+        // Retain a recoverable copy, but exclude it from active history.
+        await fs.rename(file,file+'.'+Date.now()+'.deleted');
+      });
+      pending=operation.catch(()=>{});
+      return operation;
     },
     save(data){
       const entries=JSON.parse(JSON.stringify(validate(data)));
@@ -81,5 +96,17 @@ function register(){
   const store=createStore(app.isPackaged?path.dirname(app.getPath('exe')):app.getAppPath());
   ipcMain.handle('preview-history-load',()=>store.load());
   ipcMain.handle('preview-history-save',(_,data)=>store.save(data));
+  ipcMain.handle('preview-history-remove',async(event,entry)=>{
+    const {dialog,BrowserWindow}=require('electron');
+    const expected=require('node:url').pathToFileURL(path.join(__dirname,'app.html')).href;
+    if(event.senderFrame.url!==expected)throw Error('Invalid caller');
+    const result=await dialog.showMessageBox(BrowserWindow.fromWebContents(event.sender),{
+      type:'warning',title:'Видалити збережений перегляд?',
+      message:'Видалити цей перегляд з історії?',detail:String(entry?.label||'')+'\nПодії в Google Calendar не зміняться. Копія файлу залишиться з розширенням .deleted.',
+      buttons:['Скасувати','Видалити'],defaultId:0,cancelId:0,noLink:true
+    });
+    if(result.response!==1)return {canceled:true};
+    await store.remove(entry);return {canceled:false};
+  });
 }
 module.exports={createStore,register};

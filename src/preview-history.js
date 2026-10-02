@@ -6,6 +6,10 @@
   controls.className='preview-history';
   controls.innerHTML='<button type="button" id="save-preview">Зберегти перегляд</button><select id="preview-history" aria-label="Збережені перегляди"><option value="">Історія переглядів</option></select>';
   document.querySelector('.preview .summary').append(controls);
+  const removeButton=document.createElement('button');
+  removeButton.type='button';removeButton.id='delete-preview';removeButton.textContent='Видалити';removeButton.disabled=true;
+  controls.append(removeButton);
+  function updateRemove(){removeButton.disabled=!ready||$('preview-history').value==='';}
   let entries=[];
   let ready=false;
   $('save-preview').disabled=true;
@@ -40,7 +44,7 @@
   $('save-preview').addEventListener('click',async()=>{
     if(!ready)return;
     if(!currentPreview||!exportReady){status('Спочатку згенеруйте актуальний перегляд із подіями.',true);return;}
-    $('save-preview').disabled=true;
+    $('save-preview').disabled=true;removeButton.disabled=true;$('preview-history').disabled=true;
     try{
       const savedAt=new Date().toISOString();
       const data={...currentPreview,days:currentPreview.days.map(key),events:currentPreview.events.map(e=>({...e,date:key(e.date)}))};
@@ -51,9 +55,23 @@
       entries=JSON.parse(JSON.stringify(next));options();$('preview-history').value='0';
       status('Перегляд збережено: '+file);
     }catch(e){status('Не вдалося зберегти перегляд: '+e.message,true);}
-    finally{$('save-preview').disabled=false;}
+    finally{$('save-preview').disabled=false;$('preview-history').disabled=false;updateRemove();}
+  });
+  removeButton.addEventListener('click',async()=>{
+    const index=Number($('preview-history').value);
+    if(!ready||$('preview-history').value===''||!entries[index])return;
+    removeButton.disabled=true;$('save-preview').disabled=true;$('preview-history').disabled=true;
+    try{
+      const result=await window.previewHistory.remove(entries[index]);
+      if(result.canceled)return;
+      entries.splice(index,1);options();
+      if(entries.length){$('preview-history').value='0';restore(entries[0]);}
+      status(entries.length?'Збережений перегляд видалено. Відкрито останній запис історії.':'Історію очищено. Поточний перегляд залишається на екрані, але не збережений.');
+    }catch(e){status('Не вдалося видалити перегляд: '+e.message,true);}
+    finally{$('save-preview').disabled=false;$('preview-history').disabled=false;updateRemove();}
   });
   $('preview-history').addEventListener('change',()=>{
+    updateRemove();
     if($('preview-history').value==='')return;
     try{restore(entries[Number($('preview-history').value)]);}catch(e){status('Не вдалося відкрити перегляд: '+e.message,true);}
   });
@@ -72,6 +90,6 @@
     options();
     if(entries.length){restore(entries[0]);$('preview-history').value='0';}
     if(skipped)status('Деякі пошкоджені записи історії не вдалося відкрити.',true);
-    ready=true;$('save-preview').disabled=false;
+    ready=true;$('save-preview').disabled=false;updateRemove();
   }catch(e){options();status('Не вдалося прочитати історію переглядів: '+e.message,true);}
 })();

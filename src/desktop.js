@@ -8,9 +8,6 @@ preview.id='workspace-preview';
 const settings=document.createElement('section');
 settings.id='workspace-settings';settings.className='card workspace';
 settings.innerHTML='<h2>Налаштування</h2><p class="workspace-lead">Рік, час уроків та кольори вашого розкладу.</p>';
-const connections=document.createElement('section');
-connections.id='workspace-connections';connections.className='card workspace';
-connections.innerHTML='<h2>Google Calendar</h2><p class="workspace-lead">Підключіть календар один раз, а потім надсилайте перевірені уроки.</p>';
 const bellsDetails=$('bells').closest('details');
 bellsDetails.open=true;
 settings.append(bellsDetails);
@@ -23,13 +20,8 @@ settings.append(notificationSection,$('grade-colors').closest('details'));
 const saveSettings=$('save-config').closest('.actions');
 saveSettings.classList.add('settings-save');
 settings.append(saveSettings);
-const scriptConnection=$('script-connect').closest('details');
-scriptConnection.open=true;
-scriptConnection.querySelector('summary').textContent='Особистий календар · Apps Script';
-const oauthConnection=$('google-config').closest('details');
-oauthConnection.querySelector('summary').textContent='Інший спосіб · Google OAuth';
-connections.append(scriptConnection,oauthConnection);
-main.append(connections,settings);
+main.append(settings);
+const roomsPage=document.createElement('section');roomsPage.id='workspace-rooms';roomsPage.className='card workspace';main.append(roomsPage);
 document.querySelector('.intro').remove();
 document.querySelector('.header-note').textContent='Ваш розклад. Ваш календар.';
 const navigation=document.createElement('nav');
@@ -37,7 +29,7 @@ navigation.className='workspace-nav';navigation.setAttribute('aria-label','Ос�
 const pages=[
   ['preview','Перегляд','01'],
   ['schedule','Розклад','02'],
-  ['connections','Google Calendar','↗'],
+  ['rooms','Кабінети','03'],
   ['settings','Налаштування','⚙']
 ];
 navigation.innerHTML=pages.map(([id,label,icon])=>'<button type="button" data-page="'+id+'" aria-controls="workspace-'+id+'"><span aria-hidden="true">'+icon+'</span>'+label+'</button>').join('');
@@ -58,9 +50,7 @@ const toolbar=document.createElement('div');
 toolbar.className='preview-actions';
 const edit=document.createElement('button');edit.type='button';edit.textContent='Редагувати';
 edit.addEventListener('click',()=>showWorkspace('schedule'));
-const sync=document.createElement('button');sync.type='button';sync.textContent='Google Calendar ↗';
-sync.addEventListener('click',()=>showWorkspace('connections'));
-toolbar.append(edit,$('save'),$('save-ics'),sync);
+toolbar.append(edit,$('save'),$('save-ics'));
 preview.querySelector('.section-heading').append(toolbar);
 const quickSettings=document.createElement('button');
 quickSettings.type='button';quickSettings.className='quiet';quickSettings.textContent='Дзвінки та сповіщення';
@@ -94,10 +84,10 @@ navigation.addEventListener('keydown',event=>{
 });
 $('go').addEventListener('click',()=>{if(exportReady)showWorkspace('preview');});
 // Expose status messages from hidden settings/connections in the persistent footer.
-for(const id of ['config-status','google-status','script-status']){
+for(const id of ['config-status']){
   new MutationObserver(()=>{
     const message=$(id).textContent;
-    if(message && (currentPage==='connections'||id==='config-status'))status(message);
+    if(message)status(message);
   }).observe($(id),{childList:true,characterData:true,subtree:true});
 }
 showWorkspace('preview',false);

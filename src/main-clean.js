@@ -14,8 +14,6 @@ app.on('second-instance',()=>{
   const win=BrowserWindow.getAllWindows()[0];
   if(win){if(win.isMinimized())win.restore();win.focus();}
 });
-require('./google-calendar.cjs').register();
-require('./script-sync.cjs').register();
 require('./timetable-source.cjs').register();
 require('./preview-store.cjs').register();
 function createWindow() {

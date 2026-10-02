@@ -23,7 +23,7 @@ bellContainer.append(bellEditor);
 function markBellChange(message){
   $('bells').value=dayBellConfig[1];
   $('bells').dispatchEvent(new Event('input',{bubbles:true}));
-  $('script-push').disabled=true;
+
   $('ambiguity-error').hidden=true;
   $('bell-feedback').textContent=message+' Натисніть «Зберегти конфігурацію», щоб зберегти після закриття.';
 }

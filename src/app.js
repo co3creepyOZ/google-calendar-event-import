@@ -114,7 +114,7 @@ function makeIcs(events, reminder) {
     return folded;
   }).join('\r\n')+'\r\n';
 }
-function invalidateIcs() { exportReady=false; $('save-ics').disabled=true; $('google-create').disabled=true; }
+function invalidateIcs() { exportReady=false; $('save-ics').disabled=true; }
 const pad = n => String(n).padStart(2, '0');
 const key = d => [d.getFullYear(), pad(d.getMonth()+1), pad(d.getDate())].join('-');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -221,7 +221,6 @@ function render({days,bells,dayBells={},events}) {
   renderGradePickers();
   applyGradeColors();
   exportReady=events.length>0;
-  $('google-create').disabled=!exportReady || !$('google-calendar').value;
   $('save-ics').disabled=!exportReady;
   $('reminder-summary').textContent='Сповіщення: '+reminderLabel()+' (ICS)';
   currentPreview={days,bells,dayBells,events};
@@ -230,7 +229,7 @@ $('go').addEventListener('click',()=>{
   $('ambiguity-error').hidden=true;
   try { const result=typeof selectedSchedule==='function'?selectedSchedule():parse($('md').value);render(result);status(result.warnings?.length?result.warnings.join(' '):'Готово. Перевірте події у вкладках нижче.'); }
   catch(e) {
-    $('save').disabled=true;invalidateIcs();$('script-push').disabled=true;status(e.message,true);
+    $('save').disabled=true;invalidateIcs();status(e.message,true);
     if(e.code==='AMBIGUOUS_TEACHER_SLOT'){
       $('ambiguity-message').textContent=e.message;
       $('ambiguity-list').innerHTML=(e.conflicts||[]).map(conflict=>
@@ -313,45 +312,3 @@ for(const id of ['year','bells','reminder'])$(id).addEventListener('input',()=>{
 });
 restoreConfiguration();
 renderGradePickers();
-if(typeof window!=='undefined' && window.googleCalendar) {
-  let googleBusy=false;
-  let googleConfigured=false;
-  function controls(){
-    for(const id of ['google-config','google-signin'])$(id).disabled=googleBusy;
-    $('google-disconnect').disabled=googleBusy||!googleConfigured;
-    $('google-create').disabled=googleBusy||!exportReady||!$('google-calendar').value;
-  }
-  function showCalendars(calendars){
-    $('google-calendar').innerHTML=calendars.map(c=>'<option value="'+esc(c.id)+'"'+(c.primary?' selected':'')+'>'+esc(c.name)+' · '+esc(c.timeZone)+'</option>').join('');
-    $('google-calendar').disabled=!calendars.length;
-  }
-  async function operation(fn){
-    if(googleBusy)return;
-    googleBusy=true;controls();
-    try{await fn();}catch(e){$('google-status').textContent=e.message;}
-    finally{googleBusy=false;controls();}
-  }
-  $('google-config').addEventListener('click',()=>operation(async()=>{
-    if(await window.googleCalendar.configure()){googleConfigured=true;showCalendars([]);$('google-status').textContent='OAuth налаштовано. Увійдіть у Google.';}
-  }));
-  $('google-signin').addEventListener('click',()=>operation(async()=>{
-    $('google-status').textContent='Завершіть вхід у браузері. Очікування до 3 хвилин…';
-    showCalendars(await window.googleCalendar.signIn());$('google-status').textContent='Google підключено. Виберіть календар.';
-  }));
-  $('google-disconnect').addEventListener('click',()=>operation(async()=>{
-    await window.googleCalendar.disconnect();googleConfigured=false;showCalendars([]);$('google-status').textContent='Вихід виконано. Усі збережені дані Google видалено. Для підключення завантажте OAuth JSON знову.';
-  }));
-  $('google-calendar').addEventListener('change',controls);
-  $('google-create').addEventListener('click',()=>operation(async()=>{
-    if(!exportReady)return;
-    $('google-status').textContent='Створення подій…';
-    const result=await window.googleCalendar.create({calendarId:$('google-calendar').value,reminder:$('reminder').value,events:generatedEvents.map(e=>({title:eventTitle(e),date:key(e.date),start:e.start,end:e.end,group:e.group,room:e.room,color:gradeColor(gradeOf(e))}))});
-    $('google-status').textContent=result.canceled?'Створення скасовано.':'Створено: '+result.created+'. Пропущено повторів: '+result.skipped+'.'+(result.error?' Помилка: '+result.error+' Повторіть спробу для решти подій.':'');
-  }));
-  operation(async()=>{
-    const state=await window.googleCalendar.status();
-    googleConfigured=state.configured;
-    if(state.connected){showCalendars(await window.googleCalendar.calendars());$('google-status').textContent='Google підключено.';}
-    else if(state.configured)$('google-status').textContent='OAuth налаштовано. Увійдіть у Google.';
-  });
-}
